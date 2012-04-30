@@ -8,6 +8,11 @@ try: configtext = CONFIG.read()
 except Exception, e: raise
 pattern = re.compile("\\n([\w_]+)[\t ]*([\w: \\\/~.-]+)")
 config = dict((x[0],x[1]) for x in re.findall(pattern,configtext))
+tocompare = []
+if(len(sys.argv)==1): tocompare.append(raw_input())
+else:
+    for args in sys.argv[1:]:
+        if(args!="!"): tocompare.append(args)
 done = False
 for args in sys.argv[1:]:
     if(args=="!"):
@@ -30,13 +35,6 @@ if(done==False):
     FILE.close()
     problist = probtext.split()
 solved = sets.Set(problist)
-tocompare = []
-if(len(sys.argv)==1):
-    tocompare.append(raw_input())
-else:
-    for args in sys.argv[1:]:
-        if(args!="!"):
-            tocompare.append(args)
 for handle in tocompare:
     print "Fetching "+handle+"'s solved problems..."
     try: other = pyq(url='http://www.spoj.pl/users/'+handle+'/')
@@ -45,7 +43,5 @@ for handle in tocompare:
         if(other('.content').find('table').eq(0).text().split()[1]==handle):
             print handle+":"
             for prob in other('.content').find('table').eq(2).text().split():
-                if(prob not in solved):
-                    print prob
-        else:
-             print "User "+handle+" not found"
+                if(prob not in solved): print prob
+        else: print "User "+handle+" not found"
