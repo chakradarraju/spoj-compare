@@ -1,22 +1,33 @@
 #! /usr/bin/env python
-myhandle = "chakradarraju"
 from pyquery import PyQuery as pyq
 from urllib2 import HTTPError as httperror
-import sets
-import sys
-problist = []
+import sets, sys, re
+try: CONFIG = open("config.dat","r")
+except Exception, e: raise
+try: configtext = CONFIG.read()
+except Exception, e: raise
+pattern = re.compile("\\n([\w_]+)[\t ]*([\w: \\\/~.-]+)")
+config = dict((x[0],x[1]) for x in re.findall(pattern,configtext))
 done = False
 for args in sys.argv[1:]:
     if(args=="!"):
-        FILE = open("mysolved.dat","r")
-        problist = FILE.read().split()
+        try: FILE = open("mysolved.dat","r")
+        except Exception, e: raise
+        try: probtext = FILE.read()
+        except Exception, e: raise
+        problist = probtext.split()
+        FILE.close()
         done = True
 if(done==False):
     print "Fetching your solved problems..."
-    me = pyq(url='http://www.spoj.pl/users/'+myhandle+'/')
-    FILE = open("mysolved.dat","w")
+    try: me = pyq(url='http://www.spoj.pl/users/'+config['myhandle']+'/')
+    except httperror, e: raise
+    try: FILE = open("mysolved.dat","w")
+    except Exception, e: raise
     probtext = me('.content').find('table').eq(2).text()
-    FILE.write(probtext)
+    try: FILE.write(probtext)
+    except Exception, e: raise
+    FILE.close()
     problist = probtext.split()
 solved = sets.Set(problist)
 tocompare = []
@@ -28,10 +39,8 @@ else:
             tocompare.append(args)
 for handle in tocompare:
     print "Fetching "+handle+"'s solved problems..."
-    try:
-        other = pyq(url='http://www.spoj.pl/users/'+handle+'/')
-    except httperror:
-        print "User "+handle+" Not Found"
+    try: other = pyq(url='http://www.spoj.pl/users/'+handle+'/')
+    except httperror: print "User "+handle+" Not Found"
     else:
         if(other('.content').find('table').eq(0).text().split()[1]==handle):
             print handle+":"
