@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 myhandle = "chakradarraju"
 from pyquery import PyQuery as pyq
+from urllib2 import HTTPError as httperror
 import sets
 import sys
 problist = []
@@ -29,6 +30,9 @@ for handle in tocompare:
     print "Fetching "+handle+"'s solved problems..."
     try:
         other = pyq(url='http://www.spoj.pl/users/'+handle+'/')
+    except httperror:
+        print "User "+handle+" Not Found"
+    else:
         if(other('.content').find('table').eq(0).text().split()[1]==handle):
             print handle+":"
             for prob in other('.content').find('table').eq(2).text().split():
@@ -36,5 +40,3 @@ for handle in tocompare:
                     print prob
         else:
              print "User "+handle+" not found"
-    except urllib2.HTTPError:
-        print "User "+handle+" Not Found"
